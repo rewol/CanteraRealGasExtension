@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ratun\Github\cdir\samples\cxx\realgas\build\CMakeFiles\7cffbb9ecc34659e96becc2656326990\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{E4018304-1BF8-3C8C-BCFF-0A7D4C6394ED}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

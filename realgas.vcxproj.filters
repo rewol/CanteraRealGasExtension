@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\ratun\Github\cdir\samples\cxx\realgas\realgas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VTPengRobinson.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ratun\Github\cdir\samples\cxx\realgas\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{EB103AD5-228C-3B1A-A9EA-69BC48EA4FA9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="VTPengRobinson.h" />
+  </ItemGroup>
+</Project>
