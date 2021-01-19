@@ -19,7 +19,7 @@ namespace Cantera
 		doublereal calculateSpeciesCritTemp(size_t k);			// Returns species critical temperature
 		void calculateSpeciesAlpha();							// Calculates a_k * alpha
 		void calculateCrossSpecies(Array2D&);					// Calculates sqrt(a_i * a_j)
-		void calculateMixtureCoeffs();							// Calculates a_m and b_m
+		void calculateAB();										// Calculates a_m and b_m
 
 
 
@@ -33,7 +33,7 @@ namespace Cantera
 
 	private:
 		vector_fp alpha_k;				// DO NOT FORGET TO RESERVE DURING CONSTRUCTION
-		Array2D a_alpha;
+		Array2D a_alpha;				// Contains cross species coefficients as per van der Waals mixture rules
 	};
 
 }

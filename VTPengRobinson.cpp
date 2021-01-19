@@ -131,7 +131,7 @@ namespace Cantera
 		}
 	}
 
-	void VTPengRobinson::calculateMixtureCoeffs()
+	void VTPengRobinson::calculateAB()
 	{
 		m_a = 0;
 		m_b = 0;
