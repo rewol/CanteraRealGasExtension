@@ -88,3 +88,26 @@ namespace Cantera
 			w_k[k] = coeffs.at(2);
 		}
 	}
+
+	void VTPengRobinson::calculateKappa()
+	{
+		kappa_k.reserve(m_kk);
+		for (size_t k = 0; k < m_kk; k++)
+		{
+			kappa_k.push_back(0.37464 + 1.54226 * w_k.at(k) - 0.26992 * w_k.at(k) * w_k.at(k));
+		}
+	}
+
+	doublereal VTPengRobinson::calculateSpeciesCritTemp(size_t k)
+	{
+		return (a_k.at(k) * m_b0) / (b_k.at(k) * GasConstant * m_a0);
+	}
+
+	doublereal VTPengRobinson::calculateAlpha(const std::string& iName)
+	{
+		size_t k = speciesIndex(iName);
+		doublereal tempcrit = calculateSpeciesCritTemp(k);
+		doublereal temp = (1 + kappa_k.at(k) * (1 - pow((temperature() / tempcrit), 0.5)));
+		return temp * temp;
+	}
+}
