@@ -145,4 +145,22 @@ namespace Cantera
 			}
 		}
 	}
+
+	int VTPengRobinson::deitersSolve(double temp, double pressure, doublereal a, doublereal b)
+	{
+		/*PREPERATION*/
+		double A[4];
+		double aa[4];
+		double f1 = 2;
+		double f2 = -1;
+		
+		double c = (pressure * b + RT());
+		A[0] = -f2 * c - a * b;
+		A[1] = pressure * f2 - f1 * c + a;
+		A[2] = pressure * f1 - c;
+		A[3] = pressure;
+		
+		/* STEP 1 : NORMALIZATION*/
+		return 1;
+	}
 }
