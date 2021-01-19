@@ -18,6 +18,8 @@ namespace Cantera
 		doublereal calculateAlpha(const std::string& iName);	// Return alpha_k
 		doublereal calculateSpeciesCritTemp(size_t k);			// Returns species critical temperature
 		void calculateSpeciesAlpha();							// Calculates a_k * alpha
+		void calculateCrossSpecies(Array2D&);					// Calculates sqrt(a_i * a_j)
+
 
 
 	private:
@@ -30,6 +32,7 @@ namespace Cantera
 
 	private:
 		vector_fp alpha_k;				// DO NOT FORGET TO RESERVE DURING CONSTRUCTION
+		Array2D a_alpha;
 	};
 
 }

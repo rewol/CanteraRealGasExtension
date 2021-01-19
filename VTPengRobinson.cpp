@@ -119,4 +119,15 @@ namespace Cantera
 			alpha_k.push_back(a_k.at(k) * calculateAlpha(speciesName(k)));
 		}
 	}
+
+	void VTPengRobinson::calculateCrossSpecies(Array2D& array2D)
+	{
+		for (size_t j = 0; j < m_kk; j++)
+		{
+			for (size_t i = 0; i < m_kk; i++)
+			{
+				array2D(i, j) = pow(alpha_k.at(i) * alpha_k.at(j), 0.5);
+			}
+		}
+	}
 }
