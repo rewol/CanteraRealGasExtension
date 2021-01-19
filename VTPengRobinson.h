@@ -17,6 +17,7 @@ namespace Cantera
 		void calculateKappa();									// Calculates kappa for species using acentric factor
 		doublereal calculateAlpha(const std::string& iName);	// Return alpha_k
 		doublereal calculateSpeciesCritTemp(size_t k);			// Returns species critical temperature
+		void calculateSpeciesAlpha();							// Calculates a_k * alpha
 
 
 	private:
@@ -27,6 +28,8 @@ namespace Cantera
 		vector_fp a_k, b_k, w_k;		// species values. This will only be calculated during initialization !
 		vector_fp kappa_k;				// kappa depends on w. This will only be calculated during initialization !
 
+	private:
+		vector_fp alpha_k;				// DO NOT FORGET TO RESERVE DURING CONSTRUCTION
 	};
 
 }

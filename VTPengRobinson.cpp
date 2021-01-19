@@ -110,4 +110,13 @@ namespace Cantera
 		doublereal temp = (1 + kappa_k.at(k) * (1 - pow((temperature() / tempcrit), 0.5)));
 		return temp * temp;
 	}
+
+	void VTPengRobinson::calculateSpeciesAlpha()
+	{
+		for (size_t k = 0; k < m_kk; k++)
+		{
+			
+			alpha_k.push_back(a_k.at(k) * calculateAlpha(speciesName(k)));
+		}
+	}
 }
