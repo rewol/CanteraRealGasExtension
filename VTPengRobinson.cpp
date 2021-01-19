@@ -130,4 +130,19 @@ namespace Cantera
 			}
 		}
 	}
+
+	void VTPengRobinson::calculateMixtureCoeffs()
+	{
+		m_a = 0;
+		m_b = 0;
+		
+		for (size_t i = 0; i < m_kk; i++)
+		{
+			m_b = m_b + moleFractions_.at(i) * b_k.at(i);
+			for (size_t j = 0; j < m_kk; j++)
+			{
+				m_a = m_a + moleFractions_.at(i) * moleFractions_.at(j) * a_alpha(j, i);
+			}
+		}
+	}
 }

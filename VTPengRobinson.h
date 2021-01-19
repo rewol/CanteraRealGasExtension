@@ -19,6 +19,7 @@ namespace Cantera
 		doublereal calculateSpeciesCritTemp(size_t k);			// Returns species critical temperature
 		void calculateSpeciesAlpha();							// Calculates a_k * alpha
 		void calculateCrossSpecies(Array2D&);					// Calculates sqrt(a_i * a_j)
+		void calculateMixtureCoeffs();							// Calculates a_m and b_m
 
 
 
