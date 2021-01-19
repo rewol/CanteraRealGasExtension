@@ -159,8 +159,20 @@ namespace Cantera
 		A[1] = pressure * f2 - f1 * c + a;
 		A[2] = pressure * f1 - c;
 		A[3] = pressure;
+		double w = 1 / A[3];
 		
-		/* STEP 1 : NORMALIZATION*/
+		/****** STEP 1 : NORMALIZATION ******/
+		for (size_t k = 0; k < 3; k++)
+		{
+			aa[k] = A[k] * w;
+		}
+		aa[3] = 1;
+
+		/****** STEP 2: INITIALIZATION ******/
+		// Here, we are using Laguerre - Nair - Samuelson initialization
+
+
+
 		return 1;
 	}
 }
