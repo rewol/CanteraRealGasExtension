@@ -153,6 +153,7 @@ namespace Cantera
 		double aa[4];
 		double f1 = 2;
 		double f2 = -1;
+		double x_infl;
 		
 		double c = (pressure * b + RT());
 		A[0] = -f2 * c - a * b;
@@ -160,6 +161,7 @@ namespace Cantera
 		A[2] = pressure * f1 - c;
 		A[3] = pressure;
 		double w = 1 / A[3];
+		double D = 0;
 		
 		/****** STEP 1 : NORMALIZATION ******/
 		for (size_t k = 0; k < 3; k++)
@@ -170,7 +172,19 @@ namespace Cantera
 
 		/****** STEP 2: INITIALIZATION ******/
 		// Here, we are using Laguerre - Nair - Samuelson initialization
+		x_infl = (-1 / 3) * aa[2];
+		D = aa[2] * aa[2] - 3 * aa[1];
 
+		auto f = [&]() {return A[0] + x_infl * (A[1] + x_infl * (A[2] + x_infl * A[3])); };
+		auto fp = [&]() {return A[1] + 2 * A[2] * x_infl + 3 * x_infl * x_infl * A[3]; };
+		auto fpp= [&]() {return 2 * A[2] + 6 * x_infl * A[3]; };
+
+		double y = f();
+
+		if (y == 0)
+			m_Vroot[0] = x_infl;
+		if (D == 0)
+			m_Vroot[0] = x_infl - pow(f(), 0.333);
 
 
 		return 1;
