@@ -162,6 +162,9 @@ namespace Cantera
 		A[3] = pressure;
 		double w = 1 / A[3];
 		double D = 0;
+		double initroot = 0;
+		double error = 0;
+		double prec = 1e-6;
 		
 		/****** STEP 1 : NORMALIZATION ******/
 		for (size_t k = 0; k < 3; k++)
@@ -175,17 +178,38 @@ namespace Cantera
 		x_infl = (-1 / 3) * aa[2];
 		D = aa[2] * aa[2] - 3 * aa[1];
 
-		auto f = [&]() {return A[0] + x_infl * (A[1] + x_infl * (A[2] + x_infl * A[3])); };
-		auto fp = [&]() {return A[1] + 2 * A[2] * x_infl + 3 * x_infl * x_infl * A[3]; };
-		auto fpp= [&]() {return 2 * A[2] + 6 * x_infl * A[3]; };
-
-		double y = f();
+		double y = A[0] + x_infl * (A[1] + x_infl * (A[2] + x_infl * A[3]));
 
 		if (y == 0)
-			m_Vroot[0] = x_infl;
-		if (D == 0)
-			m_Vroot[0] = x_infl - pow(f(), 0.333);
+			initroot = x_infl;
+		if (D > 0)
+		{
+			initroot = x_infl + ((y > 0) ? (-2 / 3) : (2 / 3)) * pow(D, 0.5);
+		}
+		else if(D < 0)
+		{
+			initroot = x_infl;
+		}
+		else
+		{
+			initroot = x_infl - pow(y, 0.333);
+		}
 
+		/****** STEP 2: INITIALIZATION ******/
+		// Halley's method
+
+		double x = initroot;
+		double dx = 0;
+		double xnew = 0;
+		auto f = [&]() {return A[0] + x * (A[1] + x * (A[2] + x * A[3])); };
+		auto fp = [&]() {return A[1] + 2 * A[2] * x + 3 * x * x * A[3]; };
+		auto fpp = [&]() {return 2 * A[2] + 6 * x * A[3]; };
+
+		do
+		{
+			dx = (f() * fp()) / (pow(fp(), 2) - 0.5 * f() * fpp());
+			xnew = x - dx;
+		} while (fabs(dx) > prec);
 
 		return 1;
 	}
