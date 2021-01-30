@@ -165,6 +165,9 @@ namespace Cantera
 		double initroot = 0;
 		double error = 0;
 		double prec = 1e-6;
+		int nor = 0;
+		double c0 = 0;
+		double c1 = 0;
 		
 		/****** STEP 1 : NORMALIZATION ******/
 		for (size_t k = 0; k < 3; k++)
@@ -175,42 +178,69 @@ namespace Cantera
 
 		/****** STEP 2: INITIALIZATION ******/
 		// Here, we are using Laguerre - Nair - Samuelson initialization
-		x_infl = (-1 / 3) * aa[2];
+		x_infl = -0.33333 * aa[2];
 		D = aa[2] * aa[2] - 3 * aa[1];
 
-		double y = A[0] + x_infl * (A[1] + x_infl * (A[2] + x_infl * A[3]));
+		double y = aa[0] + x_infl * (aa[1] + x_infl * (aa[2] + x_infl));
 
 		if (y == 0)
-			initroot = x_infl;
-		if (D > 0)
 		{
-			initroot = x_infl + ((y > 0) ? (-2 / 3) : (2 / 3)) * pow(D, 0.5);
+			m_Vroot[0] = x_infl;
+			c1 = m_Vroot[0] + aa[2];
+			c0 = c1 * m_Vroot[0] + aa[1];
+			m_Vroot[1] = -c1 * 0.5 - pow(c1 * c1 * 0.25 - c0, 0.5);
+			m_Vroot[2] = -c1 * 0.5 + pow(c1 * c1 * 0.25 - c0, 0.5);
+			nor = 3;
 		}
-		else if(D < 0)
+
+		if (D == 0)
 		{
-			initroot = x_infl;
+			m_Vroot[0] = x_infl - pow(y, 0.333);
+			nor = 1;
 		}
+
 		else
 		{
-			initroot = x_infl - pow(y, 0.333);
-		}
+			if (D > 0)
+			{
+				initroot = x_infl + ((y > 0) ? 0.66666 : -0.66666) * pow(D, 0.5);	
+			}
+			else
+			{
+				initroot = x_infl;
+			}
 
-		/****** STEP 2: INITIALIZATION ******/
-		// Halley's method
+			double errorlimit = 1e-6;
+			double dx = 0;
+			double x = initroot;
+			auto f = [&](){return aa[0] + x * (aa[1] + x * (aa[2] + x)); };
+			auto fp = [&](){return aa[1] + 2 * x * aa[2] + 3 * x * x; };
+			auto fpp = [&](){return 2 * aa[2] + 6 * x; };
 
-		double x = initroot;
-		double dx = 0;
-		double xnew = 0;
-		auto f = [&]() {return A[0] + x * (A[1] + x * (A[2] + x * A[3])); };
-		auto fp = [&]() {return A[1] + 2 * A[2] * x + 3 * x * x * A[3]; };
-		auto fpp = [&]() {return 2 * A[2] + 6 * x * A[3]; };
+			// Halley's method
+			do
+			{
+				dx = (f() * fp()) / (fp() * fp() - 0.5 * f() * fpp());
+				x = x - dx;
+			} while (fabs(dx) > errorlimit);
 
-		do
-		{
-			dx = (f() * fp()) / (pow(fp(), 2) - 0.5 * f() * fpp());
-			xnew = x - dx;
-		} while (fabs(dx) > prec);
+			if (D > 0)
+			{
+				m_Vroot[0] = x;
+				c1 = x + aa[2];
+				c0 = c1 * x + aa[1];
+				m_Vroot[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
+				m_Vroot[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
+				nor = 3;
+			}
+			else
+			{
+				m_Vroot[0] = x;
+				nor = 1;
+			}
 
-		return 1;
+
+		}	
+		return nor;
 	}
 }
