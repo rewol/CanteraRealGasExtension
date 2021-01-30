@@ -146,7 +146,7 @@ namespace Cantera
 		}
 	}
 
-	int VTPengRobinson::deitersSolve(double temp, double pressure, doublereal a, doublereal b)
+	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b)
 	{
 		/*PREPERATION*/
 		double A[4];
