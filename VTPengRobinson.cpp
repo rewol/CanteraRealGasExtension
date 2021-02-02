@@ -148,14 +148,64 @@ namespace Cantera
 
 	double VTPengRobinson::GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B)
 	{
+		double maximum = 0;
+		double minimum = 0;
+		double final = 0;
+		if (Z[0] > Z[1])
+		{
+			maximum = Z[0];
+			minimum = Z[1];
+		}
+		else
+		{
+			maximum = Z[1];
+			minimum = Z[0];
+		}
 
+
+		if (Z[2] > maximum)
+			maximum = Z[2];
+		else if (Z[2] < minimum)
+			minimum = Z[2];
+
+		/*std::cout << std::endl;
+		std::cout << "Liquid-like Z is = " << minimum << std::endl;
+		std::cout << "Vapor-like Z is  = " << maximum << std::endl;
+		std::cout << std::endl;*/
+
+		// Check Gibbs Free Energy change:
+		double dg = 0;
+		double s1 = 1 + pow(2, 0.5);
+		double s2 = 1 - pow(2, 0.5);
+		double zh = maximum;
+		double zl = minimum;
+
+		double term1 = log((zl - B) / (zh - B));
+		double term2 = A / (B * (s2 - s1));
+		double t1 = zl + s1 * B;
+		double t2 = zl + s2 * B;
+		double t3 = zh + s1 * B;
+		double t4 = zh + s2 * B;
+		double term3 = log((t1 / t2) * (t4 / t3));
+
+		dg = (zh - zl) + term1 - term2 * term3;
+
+		// For positive dg, phase is liquid-like. For negative dg, phase is vapor like.
+		/*if (dg > 0)
+			std::cout << "Phase is liquid-like !" << std::endl;
+		else
+			std::cout << "Phase is vapor-like" << std::endl;*/
+
+		final = (dg > 0) ? zl : zh;
+		return final;
 	}
 
 	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double Vroot)
 	{
+		// Pressure should be in Pascal
 		double Z[3] = { 0, 0, 0 };
 		double m[4];
-		double R = GasConstant * 1e-3;
+		double R = GasConstant;
 		double A = (a * pressure) / (R * R * temp * temp);
 		double B = (b * pressure) / (R * temp);
 		double x_infl = -0.3333 * m[2];
@@ -163,7 +213,7 @@ namespace Cantera
 		double x = 0;
 		double c1 = 0;
 		double c0 = 0;
-		double nor = 0;		// Number of roots
+		int nor = 0;		// Number of roots
 		double finalroot = 0;
 
 		if (y == 0)
