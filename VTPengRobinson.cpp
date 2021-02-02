@@ -146,101 +146,129 @@ namespace Cantera
 		}
 	}
 
-	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b)
+	double VTPengRobinson::GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B)
 	{
-		/*PREPERATION*/
-		double A[4];
-		double aa[4];
-		double f1 = 2;
-		double f2 = -1;
-		double x_infl;
-		
-		double c = (pressure * b + RT());
-		A[0] = -f2 * c - a * b;
-		A[1] = pressure * f2 - f1 * c + a;
-		A[2] = pressure * f1 - c;
-		A[3] = pressure;
-		double w = 1 / A[3];
-		double D = 0;
-		double initroot = 0;
-		double error = 0;
-		double prec = 1e-6;
-		int nor = 0;
-		double c0 = 0;
+
+	}
+
+	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double Vroot)
+	{
+		double Z[3] = { 0, 0, 0 };
+		double m[4];
+		double R = GasConstant * 1e-3;
+		double A = (a * pressure) / (R * R * temp * temp);
+		double B = (b * pressure) / (R * temp);
+		double x_infl = -0.3333 * m[2];
+		double y = m[0] + x_infl * (m[1] + x_infl * (m[2] + x_infl));
+		double x = 0;
 		double c1 = 0;
-		
-		/****** STEP 1 : NORMALIZATION ******/
-		for (size_t k = 0; k < 3; k++)
-		{
-			aa[k] = A[k] * w;
-		}
-		aa[3] = 1;
-
-		/****** STEP 2: INITIALIZATION ******/
-		// Here, we are using Laguerre - Nair - Samuelson initialization
-		x_infl = -0.33333 * aa[2];
-		D = aa[2] * aa[2] - 3 * aa[1];
-
-		double y = aa[0] + x_infl * (aa[1] + x_infl * (aa[2] + x_infl));
+		double c0 = 0;
+		double nor = 0;		// Number of roots
+		double finalroot = 0;
 
 		if (y == 0)
 		{
-			m_Vroot[0] = x_infl;
-			c1 = m_Vroot[0] + aa[2];
-			c0 = c1 * m_Vroot[0] + aa[1];
-			m_Vroot[1] = -c1 * 0.5 - pow(c1 * c1 * 0.25 - c0, 0.5);
-			m_Vroot[2] = -c1 * 0.5 + pow(c1 * c1 * 0.25 - c0, 0.5);
-			nor = 3;
+			Z[0] = x_infl;
+			c1 = Z[0] + m[2];
+			c0 = c1 * Z[0] + m[1];
+			double delta = c1 * c1 * 0.25 - c0;
+			double beta = -0.5 * c1;
+			if (delta <= 0)
+			{
+				//std::cout << "other roots cant be used, there is only one root" << std::endl;
+				//std::cout << "Z[0] = " << Z[0] << std::endl;
+				nor = 1;
+				finalroot = Z[0];
+			}
+			else
+			{
+				//std::cout << "there are three usable roots" << std::endl;
+				nor = 3;
+				Z[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
+				Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
+				//for (int k = 0; k < 3; k++)
+					//std::cout << "Z[" << k << "] = " << Z[k] << std::endl;
+				finalroot = GibbsFreeEnergyChange(Z, A, B);
+				//cout << "Final root is = " << finalroot << std::endl;
+
+			}
 		}
 
+		double D = pow(m[2], 2) - 3 * m[1];
 		if (D == 0)
 		{
-			m_Vroot[0] = x_infl - pow(y, 0.333);
+			Z[0] = x_infl - pow(y, 0.333);
+			finalroot = Z[0];
 			nor = 1;
 		}
 
 		else
 		{
+			bool cnd = (y > 0);
 			if (D > 0)
 			{
-				initroot = x_infl + ((y > 0) ? 0.66666 : -0.66666) * pow(D, 0.5);	
+				x = x_infl + ((cnd) ? 0.66666 : -0.66666) * pow(D, 0.5);
 			}
-			else
+			else if (D < 0)
 			{
-				initroot = x_infl;
+				x = x_infl;
 			}
-
+			// Iteration
 			double errorlimit = 1e-6;
-			double dx = 0;
-			double x = initroot;
-			auto f = [&](){return aa[0] + x * (aa[1] + x * (aa[2] + x)); };
-			auto fp = [&](){return aa[1] + 2 * x * aa[2] + 3 * x * x; };
-			auto fpp = [&](){return 2 * aa[2] + 6 * x; };
-
-			// Halley's method
+			double dx;
+			int iter = 0;
+			double y1, y2, y3;
 			do
 			{
-				dx = (f() * fp()) / (fp() * fp() - 0.5 * f() * fpp());
+				y1 = m[0] + x * (m[1] + x * (m[2] + x));
+				y2 = m[1] + 2 * x * m[2] + 3 * x * x;
+				y3 = 2 * m[2] + 6 * x;
+				dx = (y1 * y2) / (y2 * y2 - 0.5 * y1 * y3);
 				x = x - dx;
-			} while (fabs(dx) > errorlimit);
+				iter += 1;
+				//std::cout << "Iteration No: " << iter << std::endl;
+
+			} while (fabs(dx) > errorlimit * fabs(x));
 
 			if (D > 0)
 			{
-				m_Vroot[0] = x;
-				c1 = x + aa[2];
-				c0 = c1 * x + aa[1];
-				m_Vroot[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
-				m_Vroot[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
-				nor = 3;
+				Z[0] = x;
+				c1 = Z[0] + m[2];
+				c0 = c1 * Z[0] + m[1];
+				double delta = c1 * c1 * 0.25 - c0;
+				double beta = -0.5 * c1;
+				if (delta <= 0)
+				{
+					//std::cout << "other roots cant be used, there is only one root" << endl;
+					//std::cout << "Z[0] = " << Z[0] << std::endl;
+					finalroot = Z[0];
+					nor = 1;
+				}
+				else
+				{
+					//std::cout << "there are three usable roots" << std::endl;
+					nor = 3;
+					Z[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
+					Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
+					/*for (int k = 0; k < 3; k++)
+						cout << "Z[" << k << "] = " << Z[k] << std::endl;*/
+					finalroot = GibbsFreeEnergyChange(Z, A, B);
+					//cout << "Final root is = " << finalroot << std::endl;
+				}
 			}
 			else
 			{
-				m_Vroot[0] = x;
+				Z[0] = x;
+				//std::cout << "There is only one usable root" << std::endl;
+				//std::cout << "Z[0] = " << Z[0] << std::endl;
+				finalroot = Z[0];
 				nor = 1;
 			}
 
-
-		}	
+		}
+		double mmw = meanMolecularWeight();
+		m_Vroot[0] = mmw / (finalroot * R * temp / pressure);
 		return nor;
 	}
+	
 }
