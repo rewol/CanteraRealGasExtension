@@ -115,18 +115,18 @@ namespace Cantera
 	{
 		for (size_t k = 0; k < m_kk; k++)
 		{
-			
-			alpha_k.push_back(a_k.at(k) * calculateAlpha(speciesName(k)));
+			alpha_k[k] = a_k.at(k) * calculateAlpha(speciesName(k));
+			//alpha_k.push_back(a_k.at(k) * calculateAlpha(speciesName(k)));
 		}
 	}
 
-	void VTPengRobinson::calculateCrossSpecies(Array2D& array2D)
+	void VTPengRobinson::calculateCrossSpecies()
 	{
 		for (size_t j = 0; j < m_kk; j++)
 		{
 			for (size_t i = 0; i < m_kk; i++)
 			{
-				array2D(i, j) = pow(alpha_k.at(i) * alpha_k.at(j), 0.5);
+				a_alpha(i, j) = pow(alpha_k.at(i) * alpha_k.at(j), 0.5);
 			}
 		}
 	}
@@ -316,9 +316,28 @@ namespace Cantera
 			}
 
 		}
-		double mmw = meanMolecularWeight();
-		m_Vroot[0] = mmw / (finalroot * R * temp / pressure);
+		
+		m_Vroot[0] = (finalroot * R * temp / pressure);
 		return nor;
 	}
+
+	double VTPengRobinson::densityCalc(double temp, double pressure, int phaseRequested, double rhoguess)
+	{
+		double density = 0;
+		setTemperature(temp);
+
+		return density;
+	}
+
+	void VTPengRobinson::updateMixingExpressions()
+	{
+		calculateSpeciesAlpha();
+		calculateCrossSpecies();
+		calculateAB();
+	}
+
+
+
+
 	
 }
