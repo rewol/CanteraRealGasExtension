@@ -24,11 +24,12 @@ namespace Cantera
 		void calculateAB();										// Calculates a_m and b_m
 		double GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B);	// Calculates gibbs free energy change to determine phase
 		virtual void updateMixingExpressions();
-
+		double volumeTranslation();
 
 	private:
 		const doublereal m_a0 = 0.45724;
 		const doublereal m_b0 = 0.0778;
+		bool vt = false;				// Set volumetranslation
 		double m_Vroot[3];				// Molar volumes returned by cubic solver
 		doublereal m_a, m_b;			// a_mix and b_mix
 		vector_fp a_k, b_k, w_k;		// species values. This will only be calculated during initialization !

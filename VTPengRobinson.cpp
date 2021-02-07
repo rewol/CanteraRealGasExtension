@@ -342,6 +342,11 @@ namespace Cantera
 		calculateAB();
 	}
 
+	double VTPengRobinson::volumeTranslation()
+	{
+		return 0;
+	}
+
 
 
 
