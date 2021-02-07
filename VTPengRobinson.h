@@ -11,7 +11,7 @@ namespace Cantera
 	public:
 		VTPengRobinson();
 		VTPengRobinson(const std::string& infile, const std::string& id = "");
-		int deitersSolver(double temp, double pressure, doublereal a, doublereal b, double Vroot);
+		int deitersSolver(double temp, double pressure, doublereal a, doublereal b, double* Vroot);
 		virtual double densityCalc(double temp, double pressure, int phaseRequested, double rhoguess);
 	private:
 		vector_fp getCoeff(const std::string& iName);			// Returns a vector that contains a_k, b_k and w

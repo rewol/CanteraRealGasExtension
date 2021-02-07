@@ -200,7 +200,7 @@ namespace Cantera
 		return final;
 	}
 
-	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double Vroot)
+	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double* Vroot)
 	{
 		// Pressure should be in Pascal
 		double Z[3] = { 0, 0, 0 };
@@ -208,6 +208,10 @@ namespace Cantera
 		double R = GasConstant;
 		double A = (a * pressure) / (R * R * temp * temp);
 		double B = (b * pressure) / (R * temp);
+		m[0] = -1 * (A * B - pow(B, 2) - pow(B, 3));
+		m[1] = A - 3 * pow(B, 2) - 2 * B;
+		m[2] = -1 * (1 - B);
+		m[3] = 1;
 		double x_infl = -0.3333 * m[2];
 		double y = m[0] + x_infl * (m[1] + x_infl * (m[2] + x_infl));
 		double x = 0;
@@ -325,7 +329,9 @@ namespace Cantera
 	{
 		double density = 0;
 		setTemperature(temp);
-
+		double mmw = meanMolecularWeight();
+		double nor = deitersSolver(temp, pressure, m_a, m_b, m_Vroot);
+		double molarVolume = mmw / m_Vroot[0];
 		return density;
 	}
 
