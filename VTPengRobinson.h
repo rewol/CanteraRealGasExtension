@@ -26,9 +26,15 @@ namespace Cantera
 		virtual void updateMixingExpressions();
 		double volumeTranslation();
 
+		virtual void setTemperature(const doublereal temp);
+		void calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit);
+		virtual double critTemperature();
+		virtual double critPressure();
+		virtual double critVolume();
 	private:
 		const doublereal m_a0 = 0.45724;
 		const doublereal m_b0 = 0.0778;
+		const doublereal m_vc = 0.3074013;
 		bool vt = false;				// Set volumetranslation
 		double m_Vroot[3];				// Molar volumes returned by cubic solver
 		doublereal m_a, m_b;			// a_mix and b_mix

@@ -237,7 +237,7 @@ namespace Cantera
 			else
 			{
 				//std::cout << "there are three usable roots" << std::endl;
-				nor = 3;
+				nor = 2;
 				Z[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
 				Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
 				//for (int k = 0; k < 3; k++)
@@ -301,7 +301,7 @@ namespace Cantera
 				else
 				{
 					//std::cout << "there are three usable roots" << std::endl;
-					nor = 3;
+					nor = 2;
 					Z[1] = -0.5 * c1 - pow(c1 * c1 * 0.25 - c0, 0.5);
 					Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
 					/*for (int k = 0; k < 3; k++)
@@ -346,6 +346,43 @@ namespace Cantera
 	{
 		return 0;
 	}
+
+	void VTPengRobinson::setTemperature(const doublereal temp)
+	{
+		Phase::setTemperature(temp);
+		_updateReferenceStateThermo();
+		updateMixingExpressions();
+		//iState_ = phaseState(true);
+	}
+
+	void VTPengRobinson::calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit)
+	{
+		tcrit = m_a * m_b0 / (m_b * m_a0 * GasConstant);
+		pcrit = m_b0 * GasConstant * tcrit / m_b;
+		vcrit = m_vc * GasConstant * tcrit / pcrit;
+	}
+
+	double VTPengRobinson::critTemperature()
+	{
+		double tc, pc, vc;
+		calcCriticalConditions(tc, pc, vc);
+		return tc;
+	}
+
+	double VTPengRobinson::critPressure()
+	{
+		double tc, pc, vc;
+		calcCriticalConditions(tc, pc, vc);
+		return pc;
+	}
+
+	double VTPengRobinson::critVolume()
+	{
+		double tc, pc, vc;
+		calcCriticalConditions(tc, pc, vc);
+		return vc;
+	}
+
 
 
 
