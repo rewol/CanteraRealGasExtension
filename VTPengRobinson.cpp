@@ -379,8 +379,18 @@ namespace Cantera
 
 	double VTPengRobinson::volumeTranslation(double& vut)
 	{
+		//double tcm, pcm, vcm;
+		//pseudoCritProperties(tcm, pcm, vcm);
+		
+		
+		
+		
+		
+		
 		return 0;
 	}
+
+	
 
 	void VTPengRobinson::setTemperature(const doublereal temp)
 	{

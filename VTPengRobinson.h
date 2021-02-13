@@ -25,6 +25,7 @@ namespace Cantera
 		double GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B, bool* phasecheck);	// Calculates gibbs free energy change to determine phase
 		virtual void updateMixingExpressions();
 		double volumeTranslation(double& vut);					// Takes untranslated volume and applies correction
+		//void pseudoCritProperties(double& tcrit, double& pcrit, double& vcrit); // This will only called from volumetranslation
 
 		virtual void setTemperature(const doublereal temp);
 		void calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit);
