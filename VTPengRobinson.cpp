@@ -146,7 +146,7 @@ namespace Cantera
 		}
 	}
 
-	double VTPengRobinson::GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B)
+	double VTPengRobinson::GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B, bool* phasecheck)
 	{
 		double maximum = 0;
 		double minimum = 0;
@@ -191,17 +191,27 @@ namespace Cantera
 		dg = (zh - zl) + term1 - term2 * term3;
 
 		// For positive dg, phase is liquid-like. For negative dg, phase is vapor like.
-		/*if (dg > 0)
-			std::cout << "Phase is liquid-like !" << std::endl;
-		else
-			std::cout << "Phase is vapor-like" << std::endl;*/
+		//if (dg > 0)
+		//{
+		//	//std::cout << "Phase is liquid-like !" << std::endl;
+		//	*phasecheck = true;
+		//}			//std::cout << "Phase is liquid-like !" << std::endl;
+		//else
+		//{
+		//	//std::cout << "Phase is vapor-like" << std::endl;
+		//	*phasecheck = false;
+		//}
+
+		*phasecheck = (dg > 0) ? true : false;
+			
 
 		final = (dg > 0) ? zl : zh;
 		return final;
 	}
 
-	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double* Vroot)
+	int VTPengRobinson::deitersSolver(double temp, double pressure, doublereal a, doublereal b, double* Vroot, double tcrit, double vcrit)
 	{
+		bool isliquid = false;
 		// Pressure should be in Pascal
 		double Z[3] = { 0, 0, 0 };
 		double m[4];
@@ -242,7 +252,7 @@ namespace Cantera
 				Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
 				//for (int k = 0; k < 3; k++)
 					//std::cout << "Z[" << k << "] = " << Z[k] << std::endl;
-				finalroot = GibbsFreeEnergyChange(Z, A, B);
+				finalroot = GibbsFreeEnergyChange(Z, A, B, &isliquid);
 				//cout << "Final root is = " << finalroot << std::endl;
 
 			}
@@ -306,7 +316,7 @@ namespace Cantera
 					Z[2] = -0.5 * c1 + pow(c1 * c1 * 0.25 - c0, 0.5);
 					/*for (int k = 0; k < 3; k++)
 						cout << "Z[" << k << "] = " << Z[k] << std::endl;*/
-					finalroot = GibbsFreeEnergyChange(Z, A, B);
+					finalroot = GibbsFreeEnergyChange(Z, A, B, &isliquid);
 					//cout << "Final root is = " << finalroot << std::endl;
 				}
 			}
@@ -320,8 +330,21 @@ namespace Cantera
 			}
 
 		}
-		
 		m_Vroot[0] = (finalroot * R * temp / pressure);
+
+		if (nor == 1)
+		{
+			if (temp < tcrit)
+			{
+				if (m_Vroot[0] < vcrit)
+					nor = -1; // Liquid phase
+			}
+		}
+		else
+		{
+			nor = (isliquid == true) ? -2 : 2; // Liquid phase is more stable where 2 phases are found
+		}
+
 		return nor;
 	}
 
@@ -329,9 +352,21 @@ namespace Cantera
 	{
 		double density = 0;
 		setTemperature(temp);
+		double tcrit = critTemperature();
+		double vcrit = critVolume();
 		double mmw = meanMolecularWeight();
-		double nor = deitersSolver(temp, pressure, m_a, m_b, m_Vroot);
-		double molarVolume = mmw / m_Vroot[0];
+		double nor = deitersSolver(temp, pressure, m_a, m_b, m_Vroot, tcrit, vcrit);
+		double vut = m_Vroot[0];
+		if (nor < 0)
+		{
+			double vut = m_Vroot[0];
+			density = mmw / volumeTranslation(vut);
+		}
+		else
+		{
+			density = mmw / vut;
+		}
+
 		return density;
 	}
 
@@ -342,7 +377,7 @@ namespace Cantera
 		calculateAB();
 	}
 
-	double VTPengRobinson::volumeTranslation()
+	double VTPengRobinson::volumeTranslation(double& vut)
 	{
 		return 0;
 	}
