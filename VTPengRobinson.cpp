@@ -391,8 +391,8 @@ namespace Cantera
 
 	double VTPengRobinson::volumeTranslation(double& vut)
 	{
-		//double tcm, pcm, vcm;
-		//pseudoCritProperties(tcm, pcm, vcm);
+		//double tcm, pcm, vcm, wm;
+		//pseudoCritProperties(tcm, pcm, vcm, wm);
 		
 		
 		
@@ -400,6 +400,30 @@ namespace Cantera
 		
 		
 		return 0;
+	}
+
+	void VTPengRobinson::pseudoCritProperties(double& tcrit, double& pcrit, double& vcrit, double& wm)
+	{
+		vcrit = 0;
+		wm = 0;
+		double sum = 0; // This will be used to calculate tcrit !
+		// Calculate pseudo-crit volume
+		for (size_t k = 0; k < m_kk; k++)
+		{
+			vcrit = vcrit + moleFractions_.at(k) * vc_k.at(k);
+			sum = sum + moleFractions_.at(k) * pow(vc_k.at(k), 0.666);
+			wm = wm + moleFractions_.at(k) * w_k.at(k);
+		}
+
+		tcrit = 0;
+		for (size_t k = 0; k < m_kk; k++)
+		{
+			tcrit = tcrit + moleFractions_.at(k) * pow(vc_k.at(k), 0.666) * calculateSpeciesCritTemp(k);
+		}
+		tcrit = tcrit / sum;
+
+		pcrit = (0.2905 - wm * 0.085) * GasConstant * tcrit / vcrit;
+
 	}
 
 	
