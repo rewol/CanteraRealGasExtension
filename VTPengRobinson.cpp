@@ -97,6 +97,7 @@ namespace Cantera
 			a_k[k] = coeffs.at(0);
 			b_k[k] = coeffs.at(1);
 			w_k[k] = coeffs.at(2);
+			vc_k[k] = coeffs.at(3);
 		}
 	}
 
