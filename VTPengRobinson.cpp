@@ -17,7 +17,7 @@ namespace Cantera
 
 	vector_fp VTPengRobinson::getCoeff(const std::string& iName)
 	{
-		vector_fp spCoeff{ NAN, NAN, NAN };
+		vector_fp spCoeff{ NAN, NAN, NAN, NAN };
 		// Get number of species in the database
 		// open xml file critProperties.xml
 		XML_Node* doc = get_XML_File("critProperties.xml");
@@ -34,7 +34,7 @@ namespace Cantera
 			if (iNameLower == dbName) {
 				// Read from database and calculate a and b coefficients
 				double vParams;
-				double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0;
+				double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0, V_crit = 0.0;
 				if (acNodeDoc.hasChild("Tc")) {
 					vParams = 0.0;
 					XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
@@ -68,10 +68,20 @@ namespace Cantera
 					}
 					w_ac = vParams;
 				}
+				if (acNodeDoc.hasChild("Vc")) {
+					vParams = 0.0;
+					XML_Node& xmlChildCoeff = acNodeDoc.child("Vc");
+					if (xmlChildCoeff.hasChild("value")) {
+						std::string critVolume = xmlChildCoeff.attrib("value");
+						vParams = strSItoDbl(critVolume);
+					}
+					V_crit = vParams;
+				}
 
 				spCoeff[0] = m_a0 * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit;
 				spCoeff[1] = m_b0 * GasConstant * T_crit / P_crit;
 				spCoeff[2] = w_ac;
+				spCoeff[3] = V_crit;
 				break;
 			}
 		}

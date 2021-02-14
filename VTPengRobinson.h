@@ -41,6 +41,7 @@ namespace Cantera
 		doublereal m_a, m_b;			// a_mix and b_mix
 		vector_fp a_k, b_k, w_k;		// species values. This will only be calculated during initialization !
 		vector_fp kappa_k;				// kappa depends on w. This will only be calculated during initialization !
+		vector_fp vc_k;					// Critical volume for species. Will be used in pseudo-critical mixture props
 
 	private:
 		vector_fp alpha_k;				// DO NOT FORGET TO RESERVE DURING CONSTRUCTION
