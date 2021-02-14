@@ -75,6 +75,7 @@ namespace Cantera
 				break;
 			}
 		}
+		return spCoeff;
 	}
 
 	void VTPengRobinson::setSpeciesCoeffs()
