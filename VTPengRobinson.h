@@ -42,6 +42,7 @@ namespace Cantera
 		vector_fp a_k, b_k, w_k;		// species values. This will only be calculated during initialization !
 		vector_fp kappa_k;				// kappa depends on w. This will only be calculated during initialization !
 		vector_fp vc_k;					// Critical volume for species. Will be used in pseudo-critical mixture props
+		vector_fp zc_k;					// Critical compressiblity for species. Will be used in pseudo-critical mixture props
 
 	private:
 		vector_fp alpha_k;				// DO NOT FORGET TO RESERVE DURING CONSTRUCTION

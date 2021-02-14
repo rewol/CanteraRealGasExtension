@@ -17,7 +17,7 @@ namespace Cantera
 
 	vector_fp VTPengRobinson::getCoeff(const std::string& iName)
 	{
-		vector_fp spCoeff{ NAN, NAN, NAN, NAN };
+		vector_fp spCoeff{ 0, 0, 0, 0, 0 };
 		// Get number of species in the database
 		// open xml file critProperties.xml
 		XML_Node* doc = get_XML_File("critProperties.xml");
@@ -34,7 +34,7 @@ namespace Cantera
 			if (iNameLower == dbName) {
 				// Read from database and calculate a and b coefficients
 				double vParams;
-				double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0, V_crit = 0.0;
+				double T_crit = 0.0, P_crit = 0.0, w_ac = 0.0, V_crit = 0.0, Z_crit = 0;
 				if (acNodeDoc.hasChild("Tc")) {
 					vParams = 0.0;
 					XML_Node& xmlChildCoeff = acNodeDoc.child("Tc");
@@ -77,11 +77,21 @@ namespace Cantera
 					}
 					V_crit = vParams;
 				}
+				if (acNodeDoc.hasChild("Zc")) {
+					vParams = 0.0;
+					XML_Node& xmlChildCoeff = acNodeDoc.child("Zc");
+					if (xmlChildCoeff.hasChild("value")) {
+						std::string critComp = xmlChildCoeff.attrib("value");
+						vParams = strSItoDbl(critComp);
+					}
+					Z_crit = vParams;
+				}
 
 				spCoeff[0] = m_a0 * (GasConstant * GasConstant) * (T_crit * T_crit) / P_crit;
 				spCoeff[1] = m_b0 * GasConstant * T_crit / P_crit;
 				spCoeff[2] = w_ac;
 				spCoeff[3] = V_crit;
+				spCoeff[4] = Z_crit;
 				break;
 			}
 		}
@@ -98,6 +108,7 @@ namespace Cantera
 			b_k[k] = coeffs.at(1);
 			w_k[k] = coeffs.at(2);
 			vc_k[k] = coeffs.at(3);
+			zc_k[k] = coeffs.at(4);
 		}
 	}
 
@@ -391,11 +402,14 @@ namespace Cantera
 
 	double VTPengRobinson::volumeTranslation(double& vut)
 	{
-		//double tcm, pcm, vcm, wm;
-		//pseudoCritProperties(tcm, pcm, vcm, wm);
-		
-		
-		
+		double tcm, pcm, vcm, wm;
+		pseudoCritProperties(tcm, pcm, vcm, wm);
+		double cm = 0;
+		for (size_t k = 0; k < m_kk; k++)
+		{
+			cm = cm * moleFractions_.at(k) * (0.4266 * zc_k.at(k) - 0.1101);
+		}
+		double vcmpr = (GasConstant * tcm / pcm) * m_vc - vcm;		
 		
 		
 		
@@ -423,7 +437,6 @@ namespace Cantera
 		tcrit = tcrit / sum;
 
 		pcrit = (0.2905 - wm * 0.085) * GasConstant * tcrit / vcrit;
-
 	}
 
 	
