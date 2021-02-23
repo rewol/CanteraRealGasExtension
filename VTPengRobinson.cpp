@@ -409,8 +409,7 @@ namespace Cantera
 		{
 			c1m = c1m + moleFractions_.at(k) * (0.4266 * zc_k.at(k) - 0.1101);
 		}
-		double vcmpr = (GasConstant * tcm / pcm) * m_vc - vcm;		
-		
+			
 		// Calculate dpdrho = (-1 / v2) * dpdv
 		
 
