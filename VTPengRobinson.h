@@ -20,18 +20,17 @@ namespace Cantera
 		doublereal calculateAlpha(const std::string& iName);	// Return alpha_k
 		doublereal calculateSpeciesCritTemp(size_t k);			// Returns species critical temperature
 		void calculateSpeciesAlpha();							// Calculates a_k * alpha
-		void calculateCrossSpecies();					// Calculates sqrt(a_i * a_j)
+		void calculateCrossSpecies();							// Calculates sqrt(a_i * a_j)
 		void calculateAB();										// Calculates a_m and b_m
 		double GibbsFreeEnergyChange(double* Z, doublereal A, doublereal B, bool* phasecheck);	// Calculates gibbs free energy change to determine phase
 		virtual void updateMixingExpressions();
 		double volumeTranslation(double& vut);					// Takes untranslated volume and applies correction
 		void pseudoCritProperties(double& tcrit, double& pcrit, double& vcrit, double& wm); // This will only called from volumetranslation
-
 		virtual void setTemperature(const doublereal temp);
-		void calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit);
-		virtual double critTemperature();
-		virtual double critPressure();
-		virtual double critVolume();
+		void calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit); // Check CHEMKIN THEORY for this
+		virtual double critTemperature();	
+		virtual double critPressure();		
+		virtual double critVolume();		
 	private:
 		const doublereal m_a0 = 0.45724;
 		const doublereal m_b0 = 0.0778;
