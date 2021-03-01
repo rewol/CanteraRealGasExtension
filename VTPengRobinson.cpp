@@ -402,6 +402,7 @@ namespace Cantera
 
 	double VTPengRobinson::volumeTranslation(double& vut)
 	{
+		double dm, dpdv;
 		double tcm, pcm, vcm, wm;
 		pseudoCritProperties(tcm, pcm, vcm, wm);
 		double c1m = 0;
@@ -411,7 +412,8 @@ namespace Cantera
 		}
 			
 		// Calculate dpdrho = (-1 / v2) * dpdv
-		
+		dpdv = (-1 * RT() / (vut - m_b)) + (2 * m_a * (vut + m_b) / pow(vut * vut + 2 * vut * m_b - m_b * m_b, 2));
+		dm = (-1 * vut * vut / (GasConstant * tcm)) * dpdv;
 
 
 
