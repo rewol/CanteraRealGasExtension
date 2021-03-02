@@ -402,7 +402,10 @@ namespace Cantera
 
 	double VTPengRobinson::volumeTranslation(double& vut)
 	{
-		double dm, dpdv;
+		// Volume-translated Peng-Robinson equation of state for liquid
+		// densities of diverse binary mixtures
+		// Fluid Phase Equilibria 349 (2013) 37– 55
+		double dm, dpdv, cm, sigmam, shift;
 		double tcm, pcm, vcm, wm;
 		pseudoCritProperties(tcm, pcm, vcm, wm);
 		double c1m = 0;
@@ -414,10 +417,11 @@ namespace Cantera
 		// Calculate dpdrho = (-1 / v2) * dpdv
 		dpdv = (-1 * RT() / (vut - m_b)) + (2 * m_a * (vut + m_b) / pow(vut * vut + 2 * vut * m_b - m_b * m_b, 2));
 		dm = (-1 * vut * vut / (GasConstant * tcm)) * dpdv;
+		cm = (GasConstant * tcm / pcm) * (c1m - (0.004 + c1m) * exp(-2 * dm));
+		sigmam = (GasConstant * tcm / pcm) * m_vc - vcm;
+		shift = 0.35 / (0.35 + dm);
 
-
-
-		return 0;
+		return vut + cm - sigmam * shift;
 	}
 
 	void VTPengRobinson::pseudoCritProperties(double& tcrit, double& pcrit, double& vcrit, double& wm)
