@@ -30,7 +30,14 @@ namespace Cantera
 		void calcCriticalConditions(double& tcrit, double& pcrit, double& vcrit); // Check CHEMKIN THEORY for this
 		virtual double critTemperature();	
 		virtual double critPressure();		
-		virtual double critVolume();		
+		virtual double critVolume();
+	
+		// Thermodynamics
+	private:
+		virtual void getPartialMolarVolumes(double* vbar) const;
+		double dpdv();
+
+
 	private:
 		const doublereal m_a0 = 0.45724;
 		const doublereal m_b0 = 0.0778;
